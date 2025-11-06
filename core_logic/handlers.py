@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import anthropic
 import google.generativeai as genai
 from core_logic import rag_pipeline
@@ -42,39 +42,66 @@ def format_chat_history(chat_history, family):
     return formatted_history
 
 # openai llm handler
+
 def handle_openai(context):
-    """Handle requests for OpenAI models."""
+    """Handle requests for OpenAI models using the new Responses API."""
     if not context["supports_image"] and context.get("image_urls"):
         return "Images are not supported by selected model."
-    try:
-        openai.api_key = get_api_key("openai")
 
-        messages = format_chat_history(context["chat_history"], "openai") + [
-            {"role": "system", "content": context["SYSTEM_PROMPT"]},
-            {"role": "assistant", "content": context["phase_instructions"]},
+    try:
+        # 1. Initialize the new client
+        client = OpenAI(api_key=get_api_key("openai"))
+
+        # 2. Build a single instructions string
+        instructions = "\n".join([
+            context["SYSTEM_PROMPT"],
+            context["phase_instructions"]
+        ])
+
+        # 3. Prepare the input messages array
+        inputs = format_chat_history(context["chat_history"], "openai") + [
             {"role": "user", "content": context["user_prompt"]}
         ]
 
         if context["supports_image"] and context["image_urls"]:
-            messages.insert(2, {"role": "user", "content": [{"type": "image_url", "image_url": {"url": url}} for url in
-                                                            context["image_urls"]]})
+            # Responses API expects input_image objects in the same list
+            img_msgs = {
+                "role": "user",
+                "content": [
+                    {"type": "input_image", "image_url": url}
+                    for url in context["image_urls"]
+                ]
+            }
+            # insert after history but before user prompt
+            inputs.insert(
+                len(format_chat_history(context["chat_history"], "openai")),
+                img_msgs
+            )
 
-        response = openai.chat.completions.create(
+        # 4. Call the Responses endpoint
+        response = client.responses.create(
             model=context["model"],
-            messages=messages,
+            instructions=instructions,
+            input=inputs,
             temperature=context["temperature"],
-            max_tokens=context["max_tokens"],
             top_p=context["top_p"],
-            frequency_penalty=context["frequency_penalty"],
-            presence_penalty=context["presence_penalty"]
+            max_output_tokens=context["max_tokens"],
+            # stream=True  # if you want streaming responses
         )
-        input_price = int(getattr(response.usage, 'prompt_tokens', 0)) * context["price_input_token_1M"] / 1000000
-        output_price = int(getattr(response.usage, 'completion_tokens', 0)) * context["price_output_token_1M"] / 1000000
+
+        # 5. Pricing stays the same (assuming usage is still returned)
+        prompt_toks = getattr(response.usage, "prompt_tokens", 0)
+        completion_toks = getattr(response.usage, "completion_tokens", 0)
+        input_price = prompt_toks * context["price_input_token_1M"] / 1_000_000
+        output_price = completion_toks * context["price_output_token_1M"] / 1_000_000
         execution_price = input_price + output_price
-        return response.choices[0].message.content, execution_price
+
+        # 6. Extract the assistant’s reply
+        return response.output_text, execution_price
+
     except Exception as e:
         return f"Unexpected error while handling OpenAI request: {e}"
-
+    
 # claude llm handler
 def handle_claude(context):
     """Handle requests for Claude models."""

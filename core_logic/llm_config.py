@@ -6,23 +6,29 @@ LLM_CONFIG = {
         "max_tokens": 1000,
         "temperature": 1.0,
         "top_p": 1.0,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
         "supports_image": False,
         "price_input_token_1M": 0.15,
         "price_output_token_1M": 0.60
     },
-    "gpt-4-turbo": {
+    "gpt-4.1": {
         "family": "openai",
-        "model": "gpt-4-turbo",
+        "model": "gpt-4.1",
         "max_tokens": 1000,
         "temperature": 1.0,
         "top_p": 1.0,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
         "supports_image": True,
-        "price_input_token_1M": 10,
-        "price_output_token_1M": 30
+        "price_input_token_1M": 2,
+        "price_output_token_1M": 8
+    },
+    "gpt-4.1-mini": {
+        "family": "openai",
+        "model": "gpt-4.1-mini",
+        "max_tokens": 1000,
+        "temperature": 1.0,
+        "top_p": 1.0,
+        "supports_image": True,
+        "price_input_token_1M": .4,
+        "price_output_token_1M": 1.6
     },
     "rag-with-gpt-4o": {
         "family": "rag",
@@ -30,8 +36,6 @@ LLM_CONFIG = {
         "max_tokens": 1000,
         "temperature": 1.0,
         "top_p": 1.0,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
         "supports_image": True,
         "price_input_token_1M": 10,
         "price_output_token_1M": 30
@@ -42,35 +46,33 @@ LLM_CONFIG = {
         "max_tokens": 2000,
         "temperature": 1.0,
         "top_p": 1.0,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
         "supports_image": True,
         "price_input_token_1M": 2.5,
         "price_output_token_1M": 10
     },
-    "gemini-2.0-flash-lite": {
+    "gemini-pro": {
         "family": "gemini",
-        "model": "gemini-2.0-flash-lite",
+        "model": "gemini-pro",
         "max_tokens": 1000,
         "temperature": 1.0,
         "top_p": 0.95,
         "frequency_penalty": 0,
         "presence_penalty": 0,
         "supports_image": False,
-        "price_input_token_1M": 0.15,
-        "price_output_token_1M": 0.60
+        "price_input_token_1M": 2.5,
+        "price_output_token_1M": 10.00
     },
-    "gemini-2.0-flash": {
+    "gemini-pro-vision": {
         "family": "gemini",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-pro-vision",
         "max_tokens": 1000,
         "temperature": 1.0,
         "top_p": 0.95,
         "frequency_penalty": 0,
         "presence_penalty": 0,
         "supports_image": True,
-        "price_input_token_1M": 2.5,
-        "price_output_token_1M": 10.00
+        "price_input_token_1M": 0.15,
+        "price_output_token_1M": 0.60
     },
     "claude-3.5-sonnet": {
         "family": "claude",
