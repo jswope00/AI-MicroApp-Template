@@ -8,10 +8,11 @@ anthropic
 google-generativeai
 dnspython==2.6.1
 pymongo==4.8.0
-langchain-core==0.2.38
-langchain-openai==0.1.23
-langchain-mongodb==0.1.8
-langchain==0.2.16
-langchain-community==0.2.16
+langchain-core==0.3.79
+langchain-openai==0.2.14
+langchain-mongodb==0.2.0
+langchain==0.3.27
+langchain-community==0.3.31
+langchain-text-splitters==0.3.11
 pypdf
 SQLAlchemy

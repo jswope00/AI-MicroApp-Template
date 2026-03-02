@@ -45,7 +45,7 @@ def format_chat_history(chat_history, family):
 def handle_openai(context):
     """Handle requests for OpenAI models."""
     if not context["supports_image"] and context.get("image_urls"):
-        return "Images are not supported by selected model."
+        return "Images are not supported by selected model.", 0
     try:
         openai.api_key = get_api_key("openai")
 
@@ -73,13 +73,13 @@ def handle_openai(context):
         execution_price = input_price + output_price
         return response.choices[0].message.content, execution_price
     except Exception as e:
-        return f"Unexpected error while handling OpenAI request: {e}"
+        return f"Unexpected error while handling OpenAI request: {e}", 0
 
 # claude llm handler
 def handle_claude(context):
     """Handle requests for Claude models."""
     if not context["supports_image"] and context.get("image_urls"):
-        return "Images are not supported by selected model."
+        return "Images are not supported by selected model.", 0
     try:
         client = anthropic.Anthropic(api_key=get_api_key("claude"))
 
@@ -128,7 +128,7 @@ def handle_claude(context):
 def handle_gemini(context):
     """Handle requests for Gemini models."""
     if not context["supports_image"] and context.get("image_urls"):
-        return "Images are not supported by selected model."
+        return "Images are not supported by selected model.", 0
     try:
         genai.configure(api_key=get_api_key("google"))
 
@@ -164,7 +164,7 @@ def handle_gemini(context):
 def handle_perplexity(context):
     """Handle requests for Perplexity models."""
     if not context["supports_image"] and context.get("image_urls"):
-        return "Images are not supported by selected model."
+        return "Images are not supported by selected model.", 0
     api_key = get_api_key("perplexity")
     url = "https://api.perplexity.ai/chat/completions"
     execution_price = 0
@@ -252,9 +252,9 @@ def rag_handler(context):
                 template_text=str(context["phase_instructions"]) + " User answer is " + user_prompt
             )
             context["TOTAL_PRICE"] = context.get("TOTAL_PRICE", 0) + (cost if cost else 0)
-            return rag_response
+            return rag_response, cost if cost else 0
         except Exception as e:
-            return f"Error during fallback processing: {e}"
+            return f"Error during fallback processing: {e}", 0
 
     # Step 2: Check and store metadata and embeddings if not already present
     metadata_result = rag_pipeline.check_and_store_metadata_and_embeddings(file_path)
@@ -270,7 +270,7 @@ def rag_handler(context):
         print(f"RAG response: {rag_response}, cost: {cost}")
         # Step 4: Update the context with the cost (if applicable)
         context["TOTAL_PRICE"] = context.get("TOTAL_PRICE", 0) + (cost if cost else 0)
-        return rag_response
+        return rag_response, cost if cost else 0
     except Exception as e:
         print(f"RAG processing failed: {e}. Attempting fallback.")
         # Try fallback if RAG fails
@@ -280,9 +280,9 @@ def rag_handler(context):
                 template_text=str(context["phase_instructions"]) + " User answer is " + user_prompt
             )
             context["TOTAL_PRICE"] = context.get("TOTAL_PRICE", 0) + (cost if cost else 0)
-            return rag_response
+            return rag_response, cost if cost else 0
         except Exception as fallback_e:
-            return f"Error during RAG and fallback processing: {e} | {fallback_e}"
+            return f"Error during RAG and fallback processing: {e} | {fallback_e}", 0
 
 
 # Mapping of model families to handler functions

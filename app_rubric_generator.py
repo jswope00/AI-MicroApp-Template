@@ -102,7 +102,7 @@ Present ideas clearly and concisely through a well-structured concept map, suppo
     }
 }
 
-PREFERRED_LLM = "gpt-4o"
+PREFERRED_LLM = "gpt-5-mini"
 LLM_CONFIG_OVERRIDE = {}
 
 SCORING_DEBUG_MODE = True
